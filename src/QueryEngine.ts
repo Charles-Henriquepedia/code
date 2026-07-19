@@ -60,6 +60,7 @@ import {
   type FileStateCache,
 } from './utils/fileStateCache.js'
 import { headlessProfilerCheckpoint } from './utils/headlessProfiler.js'
+import { registerMonitorHooks } from './utils/monitor/monitorHooks.js'
 import { registerStructuredOutputEnforcement } from './utils/hooks/hookHelpers.js'
 import { getInMemoryErrors } from './utils/log.js'
 import { countToolCalls, SYNTHETIC_MESSAGES } from './utils/messages.js'
@@ -364,6 +365,7 @@ export class QueryEngine {
     if (jsonSchema && hasStructuredOutputTool) {
       registerStructuredOutputEnforcement(setAppState, getSessionId())
     }
+    registerMonitorHooks(setAppState, getSessionId())
 
     let processUserInputContext: ProcessUserInputContext = {
       messages: this.mutableMessages,
