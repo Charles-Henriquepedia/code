@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
-import { Box, Text, useApp, useInput } from '../../ink.js'
+import { Box, Text, useInput } from '../../ink.js'
 import chokidar from 'chokidar'
+import { toString as qrToString } from 'qrcode'
 import { readMonitorState, getStateFilePath } from '../../utils/monitor/monitorStateFile.js'
-import { getSessionId } from '../../bootstrap/state.js'
+import type { MonitorServer } from '../../utils/monitor/monitorServer.js'
 import type { MonitorSession } from '../../utils/monitor/monitorStateFile.js'
 
 // ---------------------------------------------------------------------------
@@ -14,6 +15,8 @@ type Filter = 'all' | 'running' | 'waiting_input' | 'stopped'
 
 interface Props {
   onClose: () => void
+  server?: MonitorServer
+  serverError?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -49,14 +52,21 @@ function getTerminalWidth(): number {
 // Dashboard
 // ---------------------------------------------------------------------------
 
-export function MonitorDashboard({ onClose }: Props) {
+export function MonitorDashboard({ onClose, server, serverError }: Props) {
   const [sessions, setSessions] = useState<MonitorSession[]>([])
   const [focusedIndex, setFocusedIndex] = useState(0)
   const [filter, setFilter] = useState<Filter>('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [qrLines, setQrLines] = useState<string[]>([])
 
-  const ownId = getSessionId()
+  // Generate QR code for server URL
+  useEffect(() => {
+    if (!server) return
+    qrToString(server.url, { type: 'utf8', errorCorrectionLevel: 'L', small: true })
+      .then(qr => setQrLines(qr.split('\n').filter(l => l.length > 0)))
+      .catch(() => {})
+  }, [server])
 
   // Watch the state file
   useEffect(() => {
@@ -134,6 +144,15 @@ export function MonitorDashboard({ onClose }: Props) {
   const waitingCount = sessions.filter(s => s.status === 'waiting_input').length
   const stoppedCount = sessions.filter(s => s.status === 'stopped').length
   const width = getTerminalWidth()
+
+  if (serverError) {
+    return (
+      <Box flexDirection="column" padding={1}>
+        <Text color="red">Server error: {serverError}</Text>
+        <Text dimColor>Press q to close.</Text>
+      </Box>
+    )
+  }
 
   if (loading) {
     return (
@@ -213,10 +232,21 @@ export function MonitorDashboard({ onClose }: Props) {
         })}
       </Box>
 
+      {/* QR code / Server info */}
+      {server && qrLines.length > 0 && (
+        <Box flexDirection="column" paddingX={1} paddingY={0}>
+          <Text bold color="cyan"> Mobile access </Text>
+          <Text dimColor>{server.url}</Text>
+          {qrLines.map((line, i) => (
+            <Text key={i} dimColor>{line}</Text>
+          ))}
+        </Box>
+      )}
+
       {/* Footer */}
       <Box borderStyle="single" borderColor="gray" paddingX={1}>
         <Text dimColor>
-          [↑↓/jk] nav  [q] quit  [r] refresh  [1-4] filter: all / run / wait / stop
+          {server ? `[q] quit server and dashboard` : `[↑↓/jk] nav  [q] quit  [r] refresh  [1-4] filter`}
         </Text>
       </Box>
     </Box>
