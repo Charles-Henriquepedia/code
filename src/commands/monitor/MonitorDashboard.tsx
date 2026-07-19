@@ -71,8 +71,24 @@ export function MonitorDashboard({ onClose, server, serverError }: Props) {
   // Watch the state file
   useEffect(() => {
     const path = getStateFilePath()
+
+    // Read immediately — the file may not exist yet and chokidar won't fire
+    // for non-existent files even with ignoreInitial: false.
+    readMonitorState()
+      .then(state => {
+        const list = Object.values(state.sessions)
+        list.sort((a, b) => a.createdAt - b.createdAt)
+        setSessions(list)
+        setLoading(false)
+        setError(null)
+      })
+      .catch((err: unknown) => {
+        setError((err as Error)?.message ?? 'read error')
+        setLoading(false)
+      })
+
     const watcher = chokidar.watch(path, {
-      ignoreInitial: false,
+      ignoreInitial: true,      // We already read initial state above
       awaitWriteFinish: { stabilityThreshold: 200, pollInterval: 100 },
       ignorePermissionErrors: true,
     })
@@ -82,11 +98,9 @@ export function MonitorDashboard({ onClose, server, serverError }: Props) {
         const list = Object.values(state.sessions)
         list.sort((a, b) => a.createdAt - b.createdAt)
         setSessions(list)
-        setLoading(false)
         setError(null)
       } catch (err: unknown) {
         setError((err as Error)?.message ?? 'read error')
-        setLoading(false)
       }
     }
     watcher.on('change', refresh)
