@@ -78,6 +78,12 @@ import {
 export type SDKSessionOptions = {
   /** Working directory for the session. Required. */
   cwd: string
+  /**
+   * Optional explicit session ID. If omitted, a UUID is generated.
+   * Used by external coordinators (daemon/web UI) to align SDK transcripts
+   * with their own session IDs for bidirectional sync.
+   */
+  sessionId?: string
   /** Model to use (e.g. 'claude-sonnet-4-6'). */
   model?: string
   /** Permission mode for tool access. */
@@ -565,7 +571,7 @@ function createEngineFromOptions(
  * ```
  */
 export function unstable_v2_createSession(options: SDKSessionOptions): SDKSession {
-  const sessionId = randomUUID()
+  const sessionId = options.sessionId ?? randomUUID()
   // Create SDKSessionImpl first (without engine) so we can pass its
   // pendingPermissionPrompts map to createEngineFromOptions for
   // external permission resolution support.

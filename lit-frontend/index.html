@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#f59e0b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Verboo" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" href="/verboo-logo-icon.png" />
+  <link rel="apple-touch-icon" href="/verboo-logo-icon.png" />
+  <style>
+      *::-webkit-scrollbar { width: 8px; height: 8px; }
+      *::-webkit-scrollbar-track { background: transparent; }
+      *::-webkit-scrollbar-thumb { background: var(--border, #2a2a2a); border-radius: 4px; }
+      *::-webkit-scrollbar-thumb:hover { background: #444; }
+      * { scrollbar-width: thin; scrollbar-color: var(--border, #2a2a2a) transparent; }
+    </style>
+    <title>Verboo Code</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    #app { height: 100vh; display: flex; flex-direction: column; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <vc-app-shell></vc-app-shell>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((e) => console.warn('SW register failed:', e))
+      })
+    }
+  </script>
+</body>
+</html>

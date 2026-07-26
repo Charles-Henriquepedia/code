@@ -1,0 +1,17 @@
+export class EventTypes {
+  static readonly SESSION_CREATED = 'session.created'
+  static readonly SESSION_DESTROYED = 'session.destroyed'
+  static readonly SESSION_STARTED = 'session.started'
+  static readonly SESSION_STOPPED = 'session.stopped'
+  static readonly SESSION_ERROR = 'session.error'
+  static readonly SESSION_STATE_CHANGED = 'session.state_changed'
+  static readonly SESSION_OUTPUT = 'session.output'
+  static readonly MODEL_CHANGED = 'model.changed'
+  static readonly COMMAND_EXECUTED = 'command.executed'
+  static readonly SKILL_EXECUTED = 'skill.executed'
+  static readonly TOOL_CALLED = 'tool.called'
+  static readonly DAEMON_STARTING = 'daemon.starting'
+  static readonly DAEMON_STARTED = 'daemon.started'
+  static readonly DAEMON_STOPPING = 'daemon.stopping'
+  static readonly DAEMON_STOPPED = 'daemon.stopped'
+}
